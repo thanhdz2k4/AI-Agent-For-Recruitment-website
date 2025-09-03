@@ -22,7 +22,9 @@ logger = logging.getLogger(__name__)
 # Initialize LLM client with error handling
 def initialize_llm_client():
     try:
-        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+        # For Docker containers, use host.docker.internal to reach host machine
+        default_url = "http://host.docker.internal:11434" if os.getenv("DOCKER_ENV") == "true" else "http://localhost:11434"
+        ollama_url = os.getenv("OLLAMA_URL", default_url)
         model_name = os.getenv("OLLAMA_MODEL", "phi3:mini")
         
         logger.info(f"Initializing Ollama client with URL: {ollama_url}, Model: {model_name}")
