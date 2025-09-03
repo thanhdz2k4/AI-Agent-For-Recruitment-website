@@ -10,14 +10,39 @@ backend_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, backend_path)
 
 from llms.ollama_llms import OllamaLLMs
+import logging
 
 app = Flask(__name__)
 
-# Initialize LLM client
-llm_client = OllamaLLMs(
-    base_url=os.getenv("OLLAMA_URL", "http://localhost:11434"),
-    model_name=os.getenv("OLLAMA_MODEL", "llama2")
-)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Initialize LLM client with error handling
+def initialize_llm_client():
+    try:
+        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+        model_name = os.getenv("OLLAMA_MODEL", "llama2")
+        
+        logger.info(f"Initializing Ollama client with URL: {ollama_url}, Model: {model_name}")
+        
+        client = OllamaLLMs(
+            base_url=ollama_url,
+            model_name=model_name
+        )
+        
+        # Test connection
+        test_response = client.generate_content([
+            {"role": "user", "content": "Hello"}
+        ])
+        logger.info("Ollama client initialized successfully")
+        return client
+        
+    except Exception as e:
+        logger.error(f"Failed to initialize Ollama client: {e}")
+        return None
+
+llm_client = initialize_llm_client()
 
 
 @app.route('/')
@@ -34,6 +59,14 @@ def health_check():
 def chat():
     """Chat endpoint for recruitment conversations"""
     try:
+        # Check if LLM client is available
+        if llm_client is None:
+            return jsonify({
+                "error": "LLM service is not available. Please ensure Ollama is running and accessible.",
+                "status": "service_unavailable",
+                "suggestion": "Check if Ollama is running at the configured URL"
+            }), 503
+        
         data = request.get_json()
         
         if not data or 'message' not in data:
@@ -62,6 +95,7 @@ def chat():
         })
         
     except Exception as e:
+        logger.error(f"Chat endpoint error: {e}")
         return jsonify({
             "error": str(e),
             "status": "error"
@@ -71,9 +105,16 @@ def chat():
 @app.route('/api/models', methods=['GET'])
 def list_models():
     """List available models"""
+    if llm_client is None:
+        return jsonify({
+            "error": "LLM service is not available",
+            "status": "service_unavailable"
+        }), 503
+        
     return jsonify({
         "current_model": llm_client.model_name,
-        "base_url": llm_client.base_url
+        "base_url": llm_client.base_url,
+        "status": "available"
     })
 
 
