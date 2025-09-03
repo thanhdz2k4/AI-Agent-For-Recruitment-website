@@ -74,12 +74,18 @@ ollama pull tinyllama:latest
 ollama pull llama2
 ```
 
-### 📦 GitHub Container Registry
+### 📦 Docker Hub Registry
 
 Sau khi push vào main branch, Docker image sẽ được build và push tự động tới:
 ```
-ghcr.io/thanhdz2k4/ai-agent-for-recruitment-website:latest
+tthanhhh/ai_agent_for_recruitment_website:latest
 ```
+
+**Cần thiết lập GitHub Secrets:**
+- `DOCKERHUB_USERNAME`: tthanhhh  
+- `DOCKERHUB_TOKEN`: Docker Hub access token
+
+Xem chi tiết trong [DOCKER_SETUP.md](../DOCKER_SETUP.md)
 
 ### 🏗️ Project Structure
 
