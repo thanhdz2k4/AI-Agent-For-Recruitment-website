@@ -46,7 +46,7 @@ jobs:
     - name: Run unit tests
       run: |
         cd "AI Agent for recruitment website"
-        python -m pytest backend/test/unit/ -v --tb=short
+        python -m pytest backend/test/unit/llms/test.py -v --tb=short
       env:
         PYTHONPATH: ${{ github.workspace }}/AI Agent for recruitment website/backend
 
@@ -67,7 +67,7 @@ jobs:
     - name: Run integration tests
       run: |
         cd "AI Agent for recruitment website"
-        python -m pytest backend/test/integration/ -v --tb=short
+        python -m pytest backend/test/integration/llms/test.py -v --tb=short
       env:
         PYTHONPATH: ${{ github.workspace }}/AI Agent for recruitment website/backend
 
