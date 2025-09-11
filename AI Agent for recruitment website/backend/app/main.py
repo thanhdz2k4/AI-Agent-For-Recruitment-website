@@ -50,6 +50,7 @@ def initialize_llm_client():
         return OllamaLLMs(
             base_url=os.getenv("OLLAMA_URL", "http://localhost:11434"),
             model_name=os.getenv("OLLAMA_MODEL", "phi3:mini")
+            
         )
 
 llm_client = initialize_llm_client()
