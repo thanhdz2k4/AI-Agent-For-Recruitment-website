@@ -25,7 +25,7 @@ def initialize_llm_client():
         # For Docker containers, use host.docker.internal to reach host machine
         default_url = "http://host.docker.internal:11434" if os.getenv("DOCKER_ENV") == "true" else "http://localhost:11434"
         ollama_url = os.getenv("OLLAMA_URL", default_url)
-        model_name = os.getenv("OLLAMA_MODEL", "phi3:mini")
+        model_name = os.getenv("OLLAMA_MODEL", "hf.co/unsloth/Qwen3-1.7B-GGUF:IQ4_XS")
         
         logger.info(f"Initializing Ollama client with URL: {ollama_url}, Model: {model_name}")
         
@@ -49,8 +49,8 @@ def initialize_llm_client():
         # Still create client - it might work later
         return OllamaLLMs(
             base_url=os.getenv("OLLAMA_URL", "http://localhost:11434"),
-            model_name=os.getenv("OLLAMA_MODEL", "phi3:mini")
-            
+            model_name=os.getenv("OLLAMA_MODEL", "hf.co/unsloth/Qwen3-1.7B-GGUF:IQ4_XS")
+
         )
 
 llm_client = initialize_llm_client()

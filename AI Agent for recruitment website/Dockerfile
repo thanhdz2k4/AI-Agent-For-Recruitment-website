@@ -17,7 +17,7 @@ ENV PYTHONPATH=/app/backend
 # Set Docker environment flag and Ollama URL for container
 ENV DOCKER_ENV=true
 ENV OLLAMA_URL=http://host.docker.internal:11434
-ENV OLLAMA_MODEL=phi3:mini
+ENV OLLAMA_MODEL=hf.co/unsloth/Qwen3-1.7B-GGUF:IQ4_XS 
 
 # Expose port
 EXPOSE 5000
