@@ -1,41 +1,52 @@
 import os
 import sys
+import requests
 
-# Minimal test: import class, check /api/tags, optionally call generate
+# Add backend path to sys.path
 backend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, backend_path)
 
-import requests
-from llms.ollama_llms import OllamaLLMs
+from app.chatbot.ChatbotOllama import ChatbotOllama
 
-
-def main():
+def chat_with_ollama():
     base_url = "http://localhost:11434"
-    print("Minimal OllamaLLMs test")
+    model_name = "hf.co/Cactus-Compute/Qwen3-1.7B-Instruct-GGUF:Q4_K_M"
 
+    # Kiểm tra Ollama server
     try:
         r = requests.get(f"{base_url}/api/tags", timeout=3)
-        r.raise_for_status()
-        data = r.json()
-        models = data.get('models', [])
-        print(f"Server reachable, models: {len(models)}")
-    except Exception as e:
-        print(f"Server not reachable: {e}")
-        return 1
+        if not r.json().get("models", []):
+            print("❌ Chưa có model. Chạy: ollama pull llama2")
+            return
+    except:
+        print("❌ Ollama chưa chạy. Chạy: ollama serve")
+        return
 
-    if not models:
-        print("No models pulled. Skipping generate test.")
-        return 0
+    # Thiết lập môi trường
+    os.environ["OLLAMA_URL"] = base_url
+    os.environ["OLLAMA_MODEL"] = model_name
 
-    # pick first model name if available
-    model_name = models[0].get('name') or None
-    print(f"Using model: {model_name}")
+    # Tạo chatbot
+    bot = ChatbotOllama()
+    bot.add_system_message(
+        "Bạn là một trợ lý thân thiện, trả lời ngắn gọn và hữu ích."
+    )
 
-    client = OllamaLLMs(base_url=base_url, model_name=model_name)
-    resp = client.generate_content([{"role": "user", "content": "Hello"}])
-    print("Response:", resp[:200])
-    return 0
+    print(f"✅ Chatbot sẵn sàng! Model: {model_name}")
+    print("Gõ 'quit' để thoát.\n")
 
+    while True:
+        user = input("👤 You: ").strip()
+        if user.lower() in ["quit", "exit"]:
+            print("👋 Tạm biệt!")
+            break
+        if not user:
+            continue
+        resp = bot.chat(user)
+        # Loại bỏ thẻ <think> nếu có
+        if "<think>" in resp:
+            resp = resp.split("</think>")[-1].strip()
+        print(f"🤖 Bot: {resp}")
 
-if __name__ == '__main__':
-    raise SystemExit(main())
+if __name__ == "__main__":
+    chat_with_ollama()
