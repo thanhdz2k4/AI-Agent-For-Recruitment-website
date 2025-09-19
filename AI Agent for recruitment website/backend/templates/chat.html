@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Recruitment Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .chat-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            text-align: center;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message {
+            background: #e9ecef;
+            color: #333;
+        }
+        .intent-badge {
+            font-size: 12px;
+            background: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .chat-input button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .chat-input button:hover {
+            background: #0056b3;
+        }
+        .clear-btn {
+            background: #dc3545 !important;
+            margin-left: 5px;
+        }
+        .clear-btn:hover {
+            background: #c82333 !important;
+        }
+        .status {
+            text-align: center;
+            padding: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        .loading {
+            color: #007bff;
+        }
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>🤖 AI Recruitment Assistant</h2>
+            <p>Trợ lý tuyển dụng thông minh - Hỏi về việc làm, phỏng vấn, CV...</p>
+            <div id="sessionInfo" style="font-size: 12px; opacity: 0.8;"></div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <strong>🤖 Bot:</strong> Xin chào! Tôi là trợ lý tuyển dụng AI. Tôi có thể giúp bạn về việc làm, phỏng vấn và tư vấn nghề nghiệp. Bạn cần hỗ trợ gì?
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Nhập tin nhắn của bạn..." 
+                   onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">Gửi</button>
+            <button class="clear-btn" onclick="clearHistory()">Xóa lịch sử</button>
+            <button onclick="showSessionInfo()" style="background: #6c757d;">Info</button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const status = document.getElementById('status');
+        const sessionInfo = document.getElementById('sessionInfo');
+
+        // Load session info on page load
+        loadSessionInfo();
+
+        function setStatus(message, className = '') {
+            status.textContent = message;
+            status.className = `status ${className}`;
+        }
+
+        function addMessage(content, isUser, intent = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            
+            let intentBadge = '';
+            if (intent && !isUser) {
+                intentBadge = `<span class="intent-badge">${intent}</span>`;
+            }
+            
+            messageDiv.innerHTML = `
+                <strong>${isUser ? '👤 You' : '🤖 Bot'}:</strong> ${content}${intentBadge}
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function loadSessionInfo() {
+            try {
+                const response = await fetch('/api/session/info');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    sessionInfo.innerHTML = `Session: ${data.session_id.substring(0,8)}... | Messages: ${data.history_length || 0}`;
+                }
+            } catch (error) {
+                console.log('Could not load session info');
+            }
+        }
+
+        async function showSessionInfo() {
+            try {
+                const response = await fetch('/api/session/info');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(`Session Info:
+Session ID: ${data.session_id}
+Created: ${new Date(data.created_at).toLocaleString()}
+Last Activity: ${new Date(data.last_activity).toLocaleString()}
+Messages: ${data.history_length}
+Status: ${data.status}`);
+                }
+            } catch (error) {
+                alert('Could not load session info');
+            }
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, true);
+            messageInput.value = '';
+            
+            setStatus('Đang xử lý...', 'loading');
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addMessage(data.response, false, data.intent);
+                    setStatus('');
+                    loadSessionInfo(); // Update session info
+                } else {
+                    addMessage(`Lỗi: ${data.error}`, false);
+                    setStatus('Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                addMessage(`Lỗi kết nối: ${error.message}`, false);
+                setStatus('Không thể kết nối đến server', 'error');
+            }
+        }
+
+        async function clearHistory() {
+            if (!confirm('Bạn có chắc muốn xóa lịch sử trò chuyện?')) return;
+
+            try {
+                const response = await fetch('/api/chat/clear', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    chatMessages.innerHTML = `
+                        <div class="message bot-message">
+                            <strong>🤖 Bot:</strong> Lịch sử đã được xóa. Tôi có thể giúp gì cho bạn?
+                        </div>
+                    `;
+                    setStatus('Lịch sử đã được xóa');
+                    loadSessionInfo(); // Update session info
+                }
+            } catch (error) {
+                setStatus('Không thể xóa lịch sử', 'error');
+            }
+        }
+
+        // Focus on input when page loads
+        messageInput.focus();
+    </script>
+</body>
+</html>
