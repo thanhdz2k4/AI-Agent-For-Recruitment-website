@@ -16,7 +16,15 @@ from llms.ollama_llms import OllamaLLMs
 from chatbot.ChatbotOllama import ChatbotOllama
 import logging
 
-app = Flask(__name__, template_folder='../../frontend/templates')
+# Determine template folder path based on environment
+if os.getenv("DOCKER_ENV") == "true":
+    # In Docker container
+    template_folder = '/app/frontend/templates'
+else:
+    # Local development
+    template_folder = '../../frontend/templates'
+
+app = Flask(__name__, template_folder=template_folder)
 app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
 
 # Configure logging

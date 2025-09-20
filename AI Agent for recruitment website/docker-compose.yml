@@ -29,7 +29,7 @@ services:
       - "5000:5000"
     environment:
       - OLLAMA_URL=http://ollama:11434
-      - OLLAMA_MODEL=phi3:mini
+      - OLLAMA_MODEL=hf.co/Cactus-Compute/Qwen3-1.7B-Instruct-GGUF:Q4_K_M
       - DEBUG=false
       - DOCKER_ENV=true
     depends_on:
