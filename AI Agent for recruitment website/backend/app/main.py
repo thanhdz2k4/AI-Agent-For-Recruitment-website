@@ -16,7 +16,7 @@ from llms.ollama_llms import OllamaLLMs
 from chatbot.ChatbotOllama import ChatbotOllama
 import logging
 
-app = Flask(__name__, template_folder='../templates')
+app = Flask(__name__, template_folder='../../frontend/templates')
 app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-change-in-production')
 
 # Configure logging
