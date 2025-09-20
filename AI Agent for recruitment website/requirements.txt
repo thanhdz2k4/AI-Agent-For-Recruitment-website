@@ -8,3 +8,4 @@ ollama
 qdrant-client
 fastmcp>=0.1.0
 mcp>=1.0.0
+pymongo>=4.0.0
