@@ -29,11 +29,13 @@ def chat_with_ollama():
     # Tạo chatbot
     bot = ChatbotOllama()
     bot.add_system_message(
-        "Bạn là một trợ lý thân thiện, trả lời ngắn gọn và hữu ích."
+        "Bạn là một trợ lý AI hữu ích, thân thiện và luôn hỗ trợ người dùng một cách tốt nhất. Chỉ trả lời trong tools nếu được yêu cầu."
     )
 
     print(f"✅ Chatbot sẵn sàng! Model: {model_name}")
     print("Gõ 'quit' để thoát.\n")
+    tools = bot.get_available_tools()
+    print(f"🔧 Công cụ sẵn có: {', '.join(tools)}\n")
 
     while True:
         user = input("👤 You: ").strip()
@@ -42,7 +44,7 @@ def chat_with_ollama():
             break
         if not user:
             continue
-        resp = bot.chat(user)
+        resp = bot.chat_with_tools(user, tools, max_steps = 1)
         # Loại bỏ thẻ <think> nếu có
         if "<think>" in resp:
             resp = resp.split("</think>")[-1].strip()
