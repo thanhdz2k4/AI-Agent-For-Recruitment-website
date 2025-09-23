@@ -43,6 +43,24 @@ def find_documents(collection: str, query: Dict[str, Any] = {}) -> List[Dict[str
         d["_id"] = str(d["_id"])
     return docs
 
+# Tool trích xuất đặc trưng từ câu hỏi về JD
+@server.tool()
+def extract_features_from_question(query: str, prompt_type: str) -> Dict[str, Any]:
+    """
+    Trích xuất các đặc trưng từ câu hỏi về JD
+    Args:
+        query: câu hỏi của user
+        prompt_type: loại prompt để trích xuất (vd: "extract_features_question_aboout_job")
+    Returns:
+        dict: các đặc trưng đã trích xuất
+    """
+    from tool.extract_feature_question_about_jd import ExtractFeatureQuestion
+    extractor = ExtractFeatureQuestion(
+        model_name=os.getenv("OLLAMA_MODEL", "hf.co/Cactus-Compute/Qwen3-1.7B-Instruct-GGUF:Q4_K_M"),
+        validate_response=["title", "skills", "company", "location", "experience"]
+    )
+    features = extractor.extract(query, prompt_type)
+    return features
 
 
 

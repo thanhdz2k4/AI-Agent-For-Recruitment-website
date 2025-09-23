@@ -9,6 +9,40 @@ from typing import Dict, List, Optional, Union
 from datetime import datetime
 
 
+from MCP.server import find_documents
+
+
+# tool for mongoDB
+def search_job_info_from_mongo(collection: str, query: str) -> Dict:
+    """
+    Tìm kiếm thông tin công việc từ MongoDB
+
+    Args:
+        collection: Tên collection trong MongoDB
+        query: Từ khóa tìm kiếm
+
+    Returns:
+        dict: Kết quả tìm kiếm
+    """
+    # Simple text search in MongoDB
+    filter_query = {"$text": {"$search": query}}
+    results = find_documents(collection, filter_query)
+    if not results:
+        return {"message": "No jobs found matching the query."}
+    return results
+
+def tool_self_query() -> str:
+    """
+    Tool này trả về tên và chức năng của chính nó
+
+    Returns:
+        str: Tên và chức năng của tool
+    """
+    return (
+        "Tool name: tool_self_query\n"
+        "Function: Trả về tên và chức năng của chính tool này."
+    )
+
 def add_two_numbers(a: int, b: int) -> int:
     """
     Cộng hai số nguyên
@@ -47,6 +81,8 @@ def get_current_time() -> str:
         str: Thời gian hiện tại theo định dạng ISO
     """
     return datetime.now().isoformat()
+
+
 
 
 def search_job_info(query: str, job_type: str = "all") -> Dict:
@@ -166,12 +202,13 @@ def make_safe_http_request(url: str, method: str = "GET", timeout: int = 10) -> 
 
 # Tool registry - mapping tên tool -> function
 AVAILABLE_TOOLS = {
-    "add_two_numbers": add_two_numbers,
-    "calculate_percentage": calculate_percentage,
-    "get_current_time": get_current_time,
-    "search_job_info": search_job_info,
-    "format_json_response": format_json_response,
-    "make_safe_http_request": make_safe_http_request,
+    # "add_two_numbers": add_two_numbers,
+    # "calculate_percentage": calculate_percentage,
+    # "get_current_time": get_current_time,
+    # "search_job_info": search_job_info,
+    # "format_json_response": format_json_response,
+    # "make_safe_http_request": make_safe_http_request,
+    "search_job_info_from_mongo": search_job_info_from_mongo,
 }
 
 

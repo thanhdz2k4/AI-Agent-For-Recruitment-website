@@ -5,8 +5,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
     # MongoDB settings
-    DATABASE_HOST: str = ""
-    DATABASE_NAME: str = ""
+    DATABASE_HOST: str = "mongodb+srv://thanhthanh10012004:dH4KeOCy74suqJLk@rag-cluster.ssgkce4.mongodb.net/?retryWrites=true&w=majority&appName=rag-cluster"
+    DATABASE_NAME: str = "rag"
     COLLECTION_JOB: str = ""
 
     # Qdrant settings
