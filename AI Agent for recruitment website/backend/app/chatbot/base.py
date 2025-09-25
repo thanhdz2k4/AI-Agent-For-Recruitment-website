@@ -7,7 +7,8 @@ class BaseChatbot(ABC):
     def __init__(self, model_name: str = None, **kwargs):
         self.model_name = model_name
         self.conversation_history = []
-        pass
+        self.conversation_state = "idle"  # idle, waiting_for_location, waiting_for_skills, etc.
+        self.recruitment_context = {}  # Store recruitment-related information
     
     def add_system_message(self, message: str):
         self.conversation_history.append({"role": "system", "content": message})
@@ -24,6 +25,13 @@ class BaseChatbot(ABC):
     
     def clear_history(self):
         self.conversation_history = []
+        self.conversation_state = "idle"
+        self.recruitment_context = {}
+    
+    def clear_conversation_state(self):
+        """Clear conversation state while keeping history"""
+        self.conversation_state = "idle"
+        self.recruitment_context = {}
 
     def get_history(self) -> List[Dict[str, str]]:
         return self.conversation_history

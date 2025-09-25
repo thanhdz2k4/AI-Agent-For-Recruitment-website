@@ -18,10 +18,18 @@ class Settings(BaseSettings):
     QDRANT_VECTOR_SIZE: int = 384  # for all-MiniLM-L6-v2
 
     # LLM and Embedding settings
-    TEXT_EMBEDDING_MODEL_ID: str = "sentence-transformers/all-MiniLM-L6-v2"
+    TEXT_EMBEDDING_MODEL_ID: str = "dangvantuan/vietnamese-document-embedding"  # Model tiếng Việt tốt hơn
     RERANKING_CROSS_ENCODER_MODEL_ID: str = "cross-encoder/ms-marco-MiniLM-L-4-v2"
     RAG_MODEL_DEVICE: str = "cpu"
     RAG_MODEL_ID: str = "hf.co/unsloth/Qwen3-1.7B-GGUF:IQ4_XS"
+    
+    # Performance optimization settings
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_TIMEOUT: int = 120
+    MODEL_KEEP_ALIVE: int = 600  # Giữ model trong 10 phút
+    ENABLE_MODEL_PRELOAD: bool = True
+    BATCH_SIZE: int = 32  # Batch size cho embedding
+    MAX_WORKERS: int = 4  # Số threads cho parallel processing
     
     
     @classmethod

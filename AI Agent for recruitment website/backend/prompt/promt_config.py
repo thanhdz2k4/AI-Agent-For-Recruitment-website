@@ -93,7 +93,84 @@ Output: {{"location": "Hồ Chí Minh", "title": "React.js developer", "skills":
 INPUT: "{user_input}"
 OUTPUT:
 """
-            )
+            ),
+            
+          "chitchat_to_recruitment": (
+                """
+            Người dùng đang nói chuyện phiếm về: "{user_input}"
+            Hãy trả lời một cách thân thiện và tự nhiên, sau đó khéo léo chuyển hướng cuộc trò chuyện về chủ đề tuyển dụng và tìm việc làm. 
+
+            Ví dụ:
+            - Nếu hỏi về thời tiết: "Thời tiết đẹp thật! Ngày đẹp trời như này thích hợp để cập nhật CV và tìm kiếm cơ hội việc làm mới đấy. Bạn có muốn tôi giúp tìm việc làm phù hợp không?"
+            - Nếu hỏi về bản thân bot: "Cảm ơn bạn quan tâm! Tôi là trợ lý tuyển dụng, chuyên giúp mọi người tìm kiếm cơ hội nghề nghiệp. Bạn đang tìm kiếm công việc nào?"
+
+            Hãy trả lời ngắn gọn, thân thiện và chuyển hướng một cách tự nhiên."""
+            ),
+          
+          "classification_recruitment_intent": (
+            """
+            Bạn là bộ phân loại dữ liệu cho chatbot tuyển dụng.  
+Nhiệm vụ: Xác định *loại thông tin* trong tin nhắn người dùng để lưu vào đúng trường trong context.
+
+Các loại duy nhất có thể trả về:
+- location : Địa điểm, thành phố, tỉnh, quốc gia, nơi làm việc.
+- skills   : Kỹ năng, chuyên môn, công nghệ, ngành nghề.
+- salary   : Mức lương, số tiền mong muốn, khoảng lương.
+- position : Chức danh, vị trí công việc, tên công việc cụ thể.
+
+Hãy đọc câu người dùng và **CHỈ TRẢ VỀ 1 từ duy nhất** trong bốn lựa chọn trên
+mà bạn cho là phù hợp nhất.  
+Nếu không chắc chắn, hãy chọn loại gần nhất.
+
+Ví dụ:
+User: "Mình muốn làm việc ở Hà Nội" → location
+User: "Mình biết lập trình Python và React" → skills
+User: "Mức lương khoảng 20 triệu" → salary
+User: "Mình muốn làm vị trí Data Analyst" → position
+
+User: "{user_input}"
+Trả lời:"""
+          ),
+          
+          "extract_features_cv": (
+            """Bạn là chuyên gia phân tích CV.
+
+Nhiệm vụ:
+Đọc CV dưới đây và trả về **JSON hợp lệ** với format:
+
+{{
+  "skills": ["skill1", "skill2", ...],
+  "experience_years": <tổng số năm kinh nghiệm> (int),
+  "experience_detail": [
+      {{"domain": "<lĩnh vực/loại công việc>", "years": <số năm kinh nghiệm> (int)}},
+      ...
+  ],
+  "education_level": "Bachelor/Master/PhD/College/Other",
+  "location": "<Thành phố hoặc tỉnh>",
+  "ielts": <điểm IELTS hoặc null>,
+  "certs": ["cert1", "cert2"]
+}}
+
+HƯỚNG DẪN:
+- skills: Liệt kê tất cả kỹ năng lập trình, công nghệ, framework.
+- experience_years: Tổng số năm kinh nghiệm làm việc (tính từ thời gian các vị trí ghi rõ trong CV).
+- experience_detail: Mỗi phần tử ghi rõ lĩnh vực (ví dụ: "AI/ML", "Game Development", "Blockchain", "Web/Mobile", "Khác") và số năm kinh nghiệm trong lĩnh vực đó.
+- education_level: Bachelor/Master/PhD/College/Other.
+- location: Thành phố/tỉnh từ địa chỉ.
+- ielts: Điểm IELTS nếu CV ghi rõ, nếu không có thì null (không được suy đoán).
+- certs: Danh sách chứng chỉ nếu có.
+
+QUAN TRỌNG:
+- Chỉ tính số năm kinh nghiệm khi CV có mốc thời gian rõ ràng.
+- Nếu thiếu thông tin → years = 0.
+- Không tự sáng tạo hoặc suy đoán thông tin không có.
+
+CV CONTENT:
+{user_input}
+
+CHỈ TRẢ VỀ JSON, KHÔNG VIẾT THÊM BẤT KỲ TEXT NÀO KHÁC"""
+          )
+            
         }
 
     def get_prompt(self, prompt_name: str, **kwargs) -> str:

@@ -11,18 +11,62 @@ from .tools import AVAILABLE_TOOLS, get_tool_by_name
 class OllamaLLMs(BaseLLM):
     def __init__(self, base_url: str = "http://localhost:11434", model_name: str = "llama2", **kwargs):
         """
-        Ollama client với function calling support.
+        Ollama client với function calling support và connection optimization.
         base_url: URL Ollama server (mặc định: http://localhost:11434)
         model_name: tên model đã pull về trong Ollama
         """
         super().__init__(model_name=model_name, **kwargs)
         self.base_url = base_url.rstrip("/")
         
-        # Initialize Ollama client (for function calling)
-        self.client = ollama.Client(host=base_url)
+        # Initialize Ollama client with connection pooling
+        self.client = ollama.Client(
+            host=base_url,
+            timeout=120  # Tăng timeout cho models lớn
+        )
+        
+        # Tạo session với connection pooling cho HTTP requests
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'Connection': 'keep-alive'
+        })
         
         # Setup logging
         self.logger = logging.getLogger(__name__)
+        
+        # Keep model warm (load vào memory nếu chưa load)
+        self._ensure_model_loaded()
+    
+    def _ensure_model_loaded(self):
+        """
+        Đảm bảo model đã được load vào memory (warm-up)
+        """
+        try:
+            # Gửi một request nhỏ để warm-up model
+            warmup_response = self.client.chat(
+                model=self.model_name,
+                messages=[{"role": "user", "content": "Hi"}],
+                options={"num_predict": 1}  # Chỉ generate 1 token
+            )
+            self.logger.info(f"🔥 Model {self.model_name} warmed up successfully")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Model warm-up failed: {e}")
+    
+    def keep_alive(self, duration: int = 300):
+        """
+        Giữ model trong memory trong khoảng thời gian nhất định
+        Args:
+            duration: Thời gian giữ model (giây), -1 = vĩnh viễn
+        """
+        try:
+            payload = {
+                "model": self.model_name,
+                "keep_alive": duration if duration > 0 else -1
+            }
+            self.session.post(f"{self.base_url}/api/generate", json=payload)
+            self.logger.info(f"🔄 Model {self.model_name} keep-alive set to {duration}s")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Keep-alive failed: {e}")
 
     def generate_content(self, prompt: List[Dict[str, str]]) -> str:
         """

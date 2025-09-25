@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Union
 from datetime import datetime
 
 
-from MCP.server import find_documents
+from MCP.server import find_documents, enhance_question, intent_classification
 
 
 # tool for mongoDB
@@ -199,6 +199,19 @@ def make_safe_http_request(url: str, method: str = "GET", timeout: int = 10) -> 
             "success": False
         }
 
+def intent_classification_ai(query: str) -> str:
+    """
+    Phân loại intent của câu hỏi
+
+    Args:
+        query: Câu hỏi của user
+
+    Returns:
+        str: Tên intent
+    """
+    # Mock classification - trong thực tế sẽ dùng mô hình ML
+    return intent_classification(query)
+
 
 # Tool registry - mapping tên tool -> function
 AVAILABLE_TOOLS = {
@@ -209,6 +222,7 @@ AVAILABLE_TOOLS = {
     # "format_json_response": format_json_response,
     # "make_safe_http_request": make_safe_http_request,
     "search_job_info_from_mongo": search_job_info_from_mongo,
+    
 }
 
 
