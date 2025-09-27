@@ -169,6 +169,55 @@ CV CONTENT:
 {user_input}
 
 CHỈ TRẢ VỀ JSON, KHÔNG VIẾT THÊM BẤT KỲ TEXT NÀO KHÁC"""
+          ),
+          
+          "classification_chat_intent": (
+            """
+            Bạn là một hệ thống phân loại intent cho chatbot tuyển dụng.
+Nhiệm vụ: Đọc câu nói hoặc câu hỏi của người dùng và trả về **một trong các intent** sau (chỉ trả về đúng key intent, không giải thích thêm):
+
+Intent list:
+- intent_jd: Tìm kiếm công việc
+- intent_guide: Hướng dẫn thao tác trên web
+- intent_candidate: Tìm kiếm ứng viên
+- intent_feedback: Ghi nhận phản hồi
+- intent_review_cv: Review CV
+- intent_suggest_job: Gợi ý công việc phù hợp dựa trên CV
+- intent_company_info: Thông tin công ty
+- intent_chitchat: Trò chuyện xã giao, không liên quan tuyển dụng
+
+Quy tắc:
+- Dựa vào ngữ cảnh câu nói.
+- Chỉ trả về **một** intent trong danh sách trên.
+- Nếu câu hỏi liên quan nhiều ý, chọn ý chính nổi bật nhất.
+
+Ví dụ:
+Người dùng: "Công việc ở Hà Nội"
+→ Kết quả: intent_jd
+
+Người dùng: "Hướng dẫn tạo tài khoản trên web"
+→ Kết quả: intent_guide
+
+Người dùng: "Tôi muốn tìm ứng viên biết Python"
+→ Kết quả: intent_candidate
+
+Người dùng: "Mình muốn phản hồi về trải nghiệm đăng ký"
+→ Kết quả: intent_feedback
+
+Người dùng: "Bạn có thể review CV của mình được không?"
+→ Kết quả: intent_review_cv
+
+Người dùng: "Dựa trên CV này bạn gợi ý công việc phù hợp giúp mình"
+→ Kết quả: intent_suggest_job
+
+Người dùng: "Thông tin về công ty ABC"
+→ Kết quả: intent_company_info
+
+Người dùng: "Hôm nay trời đẹp nhỉ"
+→ Kết quả: intent_chitchat
+Người dùng: "{user_input}"
+Trả lời: 
+            """
           )
             
         }
